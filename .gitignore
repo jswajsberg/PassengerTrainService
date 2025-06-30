@@ -1,1 +1,8 @@
 /src/main/java/com/trainapp/publisher/
+/.idea/
+/.settings/
+/target/
+/.project
+/.classpath
+/src/main/java/com/trainapp/service/FareCalculatorService.java
+/src/main/java/com/trainapp/service/TimeTableService.java
