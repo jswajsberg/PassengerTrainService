@@ -88,6 +88,39 @@ GET http://localhost:8080/passenger-train-service/api/trains
 - The HTML forms are basic but styled consistently for a simple and professional look.
 - No database connection is required.
 
+## 🔮 Future Enhancements
+
+The current version of the Passenger Train Service API is designed for demonstration and educational use. Planned future features and improvements include:
+
+### 🚧 To-Do / In Progress
+
+- **Admin Dashboard (Web Interface)**  
+  A secure dashboard for managing train routes, bookings, and schedules. Planned features:
+   - View and edit train data
+   - Approve or cancel user bookings
+   - Add or remove train routes
+   - Dashboard analytics (e.g., busiest routes, daily traffic)
+
+- **Form Submission Handling**  
+  Currently, the HTML forms are static. Future updates will include:
+   - POST endpoints to process form submissions
+   - Booking confirmation pages with success/failure feedback
+
+- **Validation and Error Handling**  
+  Improve robustness with:
+   - Input validation on forms and query parameters
+   - Consistent error messages in JSON and HTML
+
+- **Persistent Data Storage**  
+  Integrate a simple database (e.g., H2, MySQL) to replace hardcoded data.
+
+- **User Authentication (optional)**  
+  Add login and role-based access control for admin operations.
+
+---
+
+Have ideas or want to contribute? Feel free to fork the project and open a pull request!
+
 ---
 
 ## 📄 License
