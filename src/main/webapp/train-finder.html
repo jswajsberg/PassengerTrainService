@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Passenger Train Finder</title>
+<style>
+body {
+	font-family: sans-serif;
+	max-width: 750px;
+	margin: auto;
+	padding: 20px;
+}
+
+h1 {
+	text-align: center;
+}
+
+form {
+	background: #f0f0f0;
+	padding: 10px;
+	border-radius: 6px;
+	margin-bottom: 20px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+}
+
+form button {
+	margin-left: 10px;
+}
+
+#showAllBtn {
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	font-weight: bold;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+#showAllBtn:hover {
+	background-color: #0056b3;
+}
+
+label {
+	margin-right: 4px;
+	font-size: 14px;
+}
+
+select, input[type="date"], button {
+	padding: 4px 6px;
+	font-size: 14px;
+}
+
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 10px;
+}
+
+th, td {
+	padding: 6px;
+	border: 1px solid #ccc;
+	font-size: 14px;
+	text-align: center;
+}
+
+.table-section {
+	margin-bottom: 40px;
+}
+
+.hidden {
+	display: none;
+}
+
+.bookBtn {
+	background-color: #007bff;
+	color: white;
+	border: none;
+	padding: 6px 12px;
+	font-size: 14px;
+	font-weight: bold;
+	border-radius: 4px;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+.bookBtn:hover {
+	background-color: #0056b3;
+}
+</style>
+</head>
+<body>
+	<h1>Passenger Train Finder</h1>
+
+	<!-- Search Form -->
+	<form id="searchForm">
+		<label for="from">From:</label> <select name="from" id="from" required>
+			<option value="">---Choose---</option>
+			<option>Montreal</option>
+			<option>Quebec City</option>
+			<option>Toronto</option>
+			<option>Ottawa</option>
+			<option>Winnipeg</option>
+			<option>Regina</option>
+			<option>Vancouver</option>
+			<option>Kelowna</option>
+			<option>Edmonton</option>
+			<option>Calgary</option>
+			<option>Halifax</option>
+			<option>Moncton</option>
+		</select> <label for="to">To:</label> <select name="to" id="to" required>
+			<option value="">---Choose---</option>
+			<option>Montreal</option>
+			<option>Quebec City</option>
+			<option>Toronto</option>
+			<option>Ottawa</option>
+			<option>Winnipeg</option>
+			<option>Regina</option>
+			<option>Vancouver</option>
+			<option>Kelowna</option>
+			<option>Edmonton</option>
+			<option>Calgary</option>
+			<option>Halifax</option>
+			<option>Moncton</option>
+		</select> <label for="date">Date:</label> <input type="date" id="date"
+			name="date" required />
+
+		<button id="searchBtn" type="submit">Search</button>
+		<button id="showAllBtn" type="button">Show All Trains</button>
+	</form>
+
+	<!-- Search Results -->
+	<div class="table-section hidden" id="searchSection">
+		<h2>Search Results</h2>
+		<table id="searchResults">
+			<thead></thead>
+			<tbody id="searchBody"></tbody>
+		</table>
+	</div>
+
+	<!-- All Trains -->
+	<div class="table-section hidden" id="allSection">
+		<h2>All Trains</h2>
+		<table id="allResults">
+			<thead></thead>
+			<tbody id="allBody"></tbody>
+		</table>
+	</div>
+
+	<button onclick="window.location.href='index.html'"
+		style="margin-top: 15px; padding: 8px 16px; font-size: 14px; border: none; border-radius: 4px; background: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
+		← Return</button>
+
+	<script>
+    const form = document.getElementById("searchForm");
+    const dateInput = document.getElementById("date");
+    const searchBody = document.getElementById("searchBody");
+    const searchSection = document.getElementById("searchSection");
+    const allBody = document.getElementById("allBody");
+    const allSection = document.getElementById("allSection");
+    const toggleAllBtn = document.getElementById("showAllBtn");
+
+    let allVisible = false;
+
+    // Redirect to booking page with selected train and form data
+    function bookTrain(trainId, from, to, departureTime, arrivalTime, daysOfOperation, selectedDate) {
+      const params = new URLSearchParams({
+        trainId, from, to, departureTime, arrivalTime, daysOfOperation, selectedDate
+      });
+      window.location.href = `create-booking.html?${params.toString()}`;
+    }
+
+    // Handle form submission: search trains based on user input
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const { from, to, date } = form;
+
+      fetch(`http://localhost:8080/PassengerTrainService/api/trains/search?from=${from.value}&to=${to.value}&date=${date.value}`)
+        .then(res => {
+          if (!res.ok) throw new Error("No trains found.");
+          return res.json();
+        })
+        .then(trains => renderTable(trains, searchBody, searchSection, true))
+        .catch(() => {
+          renderTable([], searchBody, searchSection, true);
+          searchBody.innerHTML = `<tr><td colspan="7">No trains found.</td></tr>`;
+        });
+    });
+
+    // Toggle all train list visibility and fetch data if needed
+    toggleAllBtn.addEventListener("click", () => {
+      if (allVisible) {
+        allSection.classList.add("hidden");
+        allBody.innerHTML = "";
+        toggleAllBtn.textContent = "Show All Trains";
+        allVisible = false;
+        return;
+      }
+
+      fetch("http://localhost:8080/PassengerTrainService/api/trains")
+        .then(res => res.json())
+        .then(trains => {
+          renderTable(trains, allBody, allSection, false);
+          toggleAllBtn.textContent = "Hide All Trains";
+          allVisible = true;
+        })
+        .catch(() => {
+          renderTable([], allBody, allSection, false);
+          allBody.innerHTML = `<tr><td colspan="6">Failed to load trains.</td></tr>`;
+        });
+    });
+
+    /**
+     * Render train table rows based on data
+     * @param {Array} trains - train objects
+     * @param {HTMLElement} tbody - table body to populate
+     * @param {HTMLElement} section - section to reveal
+     * @param {boolean} showBook - whether to show booking button
+     */
+    function renderTable(trains, tbody, section, showBook = false) {
+      tbody.innerHTML = ""; // Clear old rows
+
+      const thead = tbody.parentElement.querySelector("thead");
+      thead.innerHTML = `
+        <tr>
+          <th>ID</th>
+          <th>From</th>
+          <th>To</th>
+          <th>Departure</th>
+          <th>Arrival</th>
+          <th>Days</th>
+          ${showBook ? "<th>Action</th>" : ""}
+        </tr>
+      `;
+
+      // Build table rows
+      trains.forEach(train => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${train.trainId}</td>
+          <td>${train.from}</td>
+          <td>${train.to}</td>
+          <td>${train.departureTime}</td>
+          <td>${train.arrivalTime}</td>
+          <td>${train.daysOfOperation}</td>
+          ${
+            showBook
+              ? `<td><button class="bookBtn" onclick="bookTrain('${train.trainId}', '${train.from}', '${train.to}', '${train.departureTime}', '${train.arrivalTime}', '${train.daysOfOperation}', '${dateInput.value}')">Book</button></td>`
+              : ""
+          }
+        `;
+        tbody.appendChild(row);
+      });
+
+      section.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>

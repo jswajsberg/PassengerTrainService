@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Passenger Train Service Portal</title>
+<style>
+body {
+	font-family: Arial, sans-serif;
+	max-width: 800px;
+	margin: 40px auto;
+	padding: 20px;
+	text-align: center;
+	background-color: #f7f7f7;
+}
+
+#logo {
+	max-width: 550px;
+	width: 100%;
+	height: auto;
+	display: block;
+	margin: 0 auto 20px;
+}
+
+.card-container {
+	display: flex;
+	flex-direction: column;
+	gap: 20px;
+	align-items: center;
+}
+
+.card {
+	background-color: white;
+	padding: 20px 30px;
+	border: 1px solid #ddd;
+	border-radius: 8px;
+	width: 100%;
+	max-width: 500px;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	transition: transform 0.2s;
+}
+
+.card:hover {
+	transform: scale(1.02);
+}
+
+.card a {
+	text-decoration: none;
+	color: #007bff;
+	font-size: 18px;
+	font-weight: bold;
+}
+
+.card p {
+	margin-top: 8px;
+	color: #555;
+	font-size: 14px;
+}
+
+footer {
+	margin-top: 40px;
+	font-size: 12px;
+	color: #888;
+}
+</style>
+</head>
+<body>
+
+  <img id="logo" src="assets/portal-thin.png" alt="Passenger Train Service Logo">
+
+  <div class="card-container">
+    <div class="card">
+      <a href="train-finder.html">🔍 Search and 📝 Book Trains</a>
+      <p>Browse all scheduled passenger trains or search by route and date.</p>
+    </div>
+    <!--
+    <div class="card">
+      <a href="create-booking.html">📝 Create a Booking</a>
+      <p>Reserve a seat on any available train quickly and easily.</p>
+    </div>
+    -->
+    <div class="card">
+      <a href="manage-booking.html">📋 Manage Your Booking</a>
+      <p>Lookup or cancel an existing train booking.</p>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2025 Joseph Wajsberg. All rights reserved.
+  </footer>
+
+</body>
+</html>

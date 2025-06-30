@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Create Booking</title>
+<style>
+/* Basic layout and spacing for the form and content */
+body {
+	font-family: sans-serif;
+	max-width: 600px;
+	margin: auto;
+	padding: 20px;
+}
+
+h1 {
+	text-align: center;
+}
+
+form {
+	background: #f9f9f9;
+	padding: 20px;
+	border-radius: 6px;
+}
+
+label {
+	display: block;
+	margin-top: 12px;
+	font-weight: bold;
+}
+
+input, select {
+	width: 100%;
+	padding: 8px;
+	font-size: 14px;
+	margin-top: 4px;
+}
+
+button {
+	margin-top: 20px;
+	padding: 10px 20px;
+	font-size: 16px;
+	font-weight: bold;
+	background-color: #007bff;
+	color: white;
+	border: none;
+	border-radius: 4px;
+	cursor: pointer;
+}
+
+button:hover {
+	background-color: #0056b3;
+}
+
+.confirmation {
+	background-color: #d4edda;
+	color: #155724;
+	padding: 10px;
+	margin-top: 20px;
+	border: 1px solid #c3e6cb;
+	border-radius: 6px;
+}
+
+.error {
+	color: red;
+	font-size: 13px;
+	margin-top: 4px;
+}
+
+.train-info {
+	background-color: #e9ecef;
+	padding: 15px;
+	border-radius: 6px;
+	margin-bottom: 20px;
+}
+
+.train-info h3 {
+	margin-top: 0;
+	color: #495057;
+}
+
+.train-details {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 10px;
+	font-size: 14px;
+}
+
+.train-details div {
+	padding: 5px;
+}
+
+.train-details strong {
+	color: #007bff;
+}
+</style>
+</head>
+<body>
+
+	<h1>Create a Booking</h1>
+
+	<!-- Train info panel (if available) -->
+	<div class="train-info" id="trainInfo" style="display: none;">
+		<h3>Selected Train Details</h3>
+		<div class="train-details" id="trainDetails"></div>
+	</div>
+
+	<!-- Main booking form -->
+	<form id="bookingForm">
+		<label for="from">From</label> <input type="text" id="from"
+			name="from" readonly /> <label for="to">To</label> <input
+			type="text" id="to" name="to" readonly /> <label for="date">Travel
+			Date</label> <input type="date" id="date" name="date" readonly /> <label
+			for="passengerName">Passenger Name</label> <input type="text"
+			id="passengerName" name="passengerName" required />
+		<div class="error" id="nameError"></div>
+
+		<label for="email">Email Address</label> <input type="email"
+			id="email" name="email" required />
+		<div class="error" id="emailError"></div>
+
+		<button type="submit">Book Now</button>
+	</form>
+
+	<!-- Confirmation message area -->
+	<div class="confirmation" id="confirmation" style="display: none;"></div>
+
+	<button onclick="window.location.href='index.html'"
+		style="margin-top: 15px; padding: 8px 16px; font-size: 14px; border: none; border-radius: 4px; background: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
+		← Return</button>
+
+	<script>
+    // Get train details from URL parameters (passed from previous page)
+    const params = new URLSearchParams(window.location.search);
+    const trainId = params.get("trainId");
+    const from = params.get("from");
+    const to = params.get("to");
+    const departureTime = params.get("departureTime");
+    const arrivalTime = params.get("arrivalTime");
+    const daysOfOperation = params.get("daysOfOperation");
+    const selectedDate = params.get("selectedDate");
+
+    const fromInput = document.getElementById("from");
+    const toInput = document.getElementById("to");
+    const dateInput = document.getElementById("date");
+    const trainInfo = document.getElementById("trainInfo");
+    const trainDetails = document.getElementById("trainDetails");
+
+    // Populate train and date fields (either from query string or fetch)
+    if (trainId && from && to) {
+      // Case 1: All info passed in URL
+      fromInput.value = from;
+      toInput.value = to;
+      dateInput.value = selectedDate && selectedDate !== 'null' && selectedDate !== ''
+        ? selectedDate
+        : new Date().toISOString().split("T")[0];
+
+      trainDetails.innerHTML = `
+        <div><strong>Train ID:</strong> ${trainId}</div>
+        <div><strong>Route:</strong> ${from} → ${to}</div>
+        <div><strong>Departure:</strong> ${departureTime || 'N/A'}</div>
+        <div><strong>Arrival:</strong> ${arrivalTime || 'N/A'}</div>
+        <div><strong>Days:</strong> ${daysOfOperation || 'N/A'}</div>
+        <div></div>
+      `;
+      trainInfo.style.display = "block";
+    } else if (trainId) {
+      // Case 2: Fallback — fetch full train data from backend
+      fetch("http://localhost:8080/PassengerTrainService/api/trains")
+        .then(res => res.json())
+        .then(trains => {
+          const match = trains.find(t => t.trainId === trainId);
+          if (match) {
+            fromInput.value = match.from;
+            toInput.value = match.to;
+            dateInput.value = selectedDate || new Date().toISOString().split("T")[0];
+
+            trainDetails.innerHTML = `
+              <div><strong>Train ID:</strong> ${match.trainId}</div>
+              <div><strong>Route:</strong> ${match.from} → ${match.to}</div>
+              <div><strong>Departure:</strong> ${match.departureTime || 'N/A'}</div>
+              <div><strong>Arrival:</strong> ${match.arrivalTime || 'N/A'}</div>
+              <div><strong>Days:</strong> ${match.daysOfOperation || 'N/A'}</div>
+              <div></div>
+            `;
+            trainInfo.style.display = "block";
+          } else {
+            alert("Train not found.");
+          }
+        })
+        .catch(() => alert("Failed to load train data."));
+    } else {
+      // No train specified
+      alert("No train selected. Please go back and select a train to book.");
+    }
+
+    // Handle form submission
+    document.getElementById("bookingForm").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Clear old errors
+      document.getElementById("nameError").textContent = "";
+      document.getElementById("emailError").textContent = "";
+
+      // Get field values
+      const name = document.getElementById("passengerName").value.trim();
+      const email = document.getElementById("email").value.trim();
+      const nameRegex = /^[A-Za-zÀ-ÿ\-'\s]+$/;
+
+      // Basic client-side validation
+      let valid = true;
+      if (!nameRegex.test(name) || name.length < 2) {
+        document.getElementById("nameError").textContent = "Please enter a valid name (letters and hyphens only).";
+        valid = false;
+      }
+
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        document.getElementById("emailError").textContent = "Enter a valid email.";
+        valid = false;
+      }
+
+      if (!valid) return;
+
+      // Submit booking to backend
+      fetch("http://localhost:8080/PassengerTrainService/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trainId,
+          name,
+          email,
+          from: fromInput.value,
+          to: toInput.value,
+          travelDate: dateInput.value,
+        }),
+      })
+        .then(async res => {
+          if (!res.ok) {
+            // Attempt to extract useful error message
+            const text = await res.text();
+            try {
+              const json = JSON.parse(text);
+              throw new Error(json.message || JSON.stringify(json));
+            } catch {
+              throw new Error(text || `HTTP ${res.status} - No error details available`);
+            }
+          }
+          return res.json();
+        })
+        .then(data => {
+          // Show success message with manage button aligned right next to booking ID
+          const confirmation = document.getElementById("confirmation");
+          confirmation.style.display = "block";
+          confirmation.style.backgroundColor = "#d4edda";
+          confirmation.style.color = "#155724";
+          confirmation.innerHTML = `
+            <strong>Booking Successful!</strong><br>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
+              <div>
+                Your booking ID is: <strong>${data.bookingId}</strong>
+              </div>
+              <button id="manageBtn" type="button" style="
+                padding: 8px 16px;
+                font-size: 14px;
+                background-color: #007bff;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+              ">Manage</button>
+            </div>
+            Name: ${data.name}<br>
+            From: ${data.from} → ${data.to} on ${data.travelDate}
+          `;
+          document.getElementById("bookingForm").reset();
+          confirmation.scrollIntoView({ behavior: 'smooth' });
+
+          // Add click handler for Manage button to navigate with bookingId
+          document.getElementById("manageBtn").addEventListener("click", () => {
+            window.location.href = `manage-booking.html?bookingId=${data.bookingId}`;
+          });
+        })
+        .catch(error => {
+          // Show error message
+          const confirmation = document.getElementById("confirmation");
+          confirmation.style.display = "block";
+          confirmation.style.backgroundColor = "#f8d7da";
+          confirmation.style.color = "#721c24";
+          confirmation.innerHTML = `
+            <strong>Booking Failed!</strong><br>
+            ${error.message.replace(/\n/g, "<br>")}
+          `;
+          console.error("Booking error:", error);
+          confirmation.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+  </script>
+</body>
+</html>
