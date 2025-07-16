@@ -65,7 +65,7 @@ GET http://localhost:8080/passenger-train-service/api/trains
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/your-username/passenger-train-service.git
+   git clone https://github.com/jswajsberg/PassengerTrainService.git
    ```
 
 2. Import into Eclipse or your preferred IDE as a Maven project.
