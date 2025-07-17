@@ -10,9 +10,25 @@ import java.util.*;
 /**
  * Service class providing train schedule logic,
  * including lookup and validation based on route and travel date.
+ * Implemented as a singleton to ensure efficient resource usage.
  */
 public class TrainService {
     private static final List<Train> trains = new ArrayList<>();
+    private static TrainService instance;
+
+    // Private constructor to prevent direct instantiation
+    private TrainService() {}
+
+    /**
+     * Returns the singleton instance of TrainService.
+     * Thread-safe lazy initialization.
+     */
+    public static synchronized TrainService getInstance() {
+        if (instance == null) {
+            instance = new TrainService();
+        }
+        return instance;
+    }
 
     /**
      * Returns all available train entries.
@@ -46,19 +62,7 @@ public class TrainService {
         // Check if train matches route and operates on requested day
         for (Train t : trains) {
             if (t.getFrom().equalsIgnoreCase(from) && t.getTo().equalsIgnoreCase(to)) {
-                String days = t.getDaysOfOperation().toLowerCase();
-
-                if (
-                    days.contains("daily") ||
-                    (days.contains("weekends") && (requestedDay == DayOfWeek.SATURDAY || requestedDay == DayOfWeek.SUNDAY)) ||
-                    (days.contains("mon") && requestedDay == DayOfWeek.MONDAY) ||
-                    (days.contains("tue") && requestedDay == DayOfWeek.TUESDAY) ||
-                    (days.contains("wed") && requestedDay == DayOfWeek.WEDNESDAY) ||
-                    (days.contains("thu") && requestedDay == DayOfWeek.THURSDAY) ||
-                    (days.contains("fri") && requestedDay == DayOfWeek.FRIDAY) ||
-                    (days.contains("sat") && requestedDay == DayOfWeek.SATURDAY) ||
-                    (days.contains("sun") && requestedDay == DayOfWeek.SUNDAY)
-                ) {
+                if (isTrainAvailableOnDay(t, requestedDay)) {
                     matching.add(t);
                 }
             }
@@ -99,25 +103,35 @@ public class TrainService {
 
         for (Train t : trains) {
             if (t.getFrom().equalsIgnoreCase(from) && t.getTo().equalsIgnoreCase(to)) {
-                String days = t.getDaysOfOperation().toLowerCase();
-
-                if (
-                    days.contains("daily") ||
-                    (days.contains("weekends") && (requestedDay == DayOfWeek.SATURDAY || requestedDay == DayOfWeek.SUNDAY)) ||
-                    (days.contains("mon") && requestedDay == DayOfWeek.MONDAY) ||
-                    (days.contains("tue") && requestedDay == DayOfWeek.TUESDAY) ||
-                    (days.contains("wed") && requestedDay == DayOfWeek.WEDNESDAY) ||
-                    (days.contains("thu") && requestedDay == DayOfWeek.THURSDAY) ||
-                    (days.contains("fri") && requestedDay == DayOfWeek.FRIDAY) ||
-                    (days.contains("sat") && requestedDay == DayOfWeek.SATURDAY) ||
-                    (days.contains("sun") && requestedDay == DayOfWeek.SUNDAY)
-                ) {
+                if (isTrainAvailableOnDay(t, requestedDay)) {
                     return true;
                 }
             }
         }
 
         return false;
+    }
+
+    /**
+     * Helper method to check if a train operates on a specific day of the week.
+     * Centralizes the day-checking logic to avoid code duplication.
+     *
+     * @param train The train to check
+     * @param requestedDay The day of the week to check
+     * @return true if the train operates on the requested day, false otherwise
+     */
+    private boolean isTrainAvailableOnDay(Train train, DayOfWeek requestedDay) {
+        String days = train.getDaysOfOperation().toLowerCase();
+
+        return days.contains("daily") ||
+               (days.contains("weekends") && (requestedDay == DayOfWeek.SATURDAY || requestedDay == DayOfWeek.SUNDAY)) ||
+               (days.contains("mon") && requestedDay == DayOfWeek.MONDAY) ||
+               (days.contains("tue") && requestedDay == DayOfWeek.TUESDAY) ||
+               (days.contains("wed") && requestedDay == DayOfWeek.WEDNESDAY) ||
+               (days.contains("thu") && requestedDay == DayOfWeek.THURSDAY) ||
+               (days.contains("fri") && requestedDay == DayOfWeek.FRIDAY) ||
+               (days.contains("sat") && requestedDay == DayOfWeek.SATURDAY) ||
+               (days.contains("sun") && requestedDay == DayOfWeek.SUNDAY);
     }
 
     // Static initializer: hard-coded train data for demo/testing purposes

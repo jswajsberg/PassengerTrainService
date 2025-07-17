@@ -20,7 +20,7 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class TrainResource {
 
-    private final TrainService service = new TrainService();
+    private final TrainService service = TrainService.getInstance();
 
     /**
      * GET /trains

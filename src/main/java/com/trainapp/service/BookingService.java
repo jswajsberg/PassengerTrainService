@@ -15,8 +15,8 @@ public class BookingService {
     // Thread-safe map to store bookings by ID
     private static final Map<String, Booking> bookings = new ConcurrentHashMap<>();
 
-    // Reference to train service to validate route and date
-    private final TrainService trainService = new TrainService();
+    // Reference to train service singleton to validate route and date
+    private final TrainService trainService = TrainService.getInstance();
 
     /**
      * Creates a new booking if the route and travel date are valid.
@@ -76,8 +76,9 @@ public class BookingService {
 
     /**
      * Returns all current bookings.
+     * Made non-static to follow proper encapsulation principles.
      */
-    public static Collection<Booking> getAllBookings() {
+    public Collection<Booking> getAllBookings() {
         return bookings.values();
     }
 

@@ -238,22 +238,47 @@ th, td {
         </tr>
       `;
 
-      // Build table rows
+      // Build table rows safely without XSS vulnerability
       trains.forEach(train => {
         const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${train.trainId}</td>
-          <td>${train.from}</td>
-          <td>${train.to}</td>
-          <td>${train.departureTime}</td>
-          <td>${train.arrivalTime}</td>
-          <td>${train.daysOfOperation}</td>
-          ${
-            showBook
-              ? `<td><button class="bookBtn" onclick="bookTrain('${train.trainId}', '${train.from}', '${train.to}', '${train.departureTime}', '${train.arrivalTime}', '${train.daysOfOperation}', '${dateInput.value}')">Book</button></td>`
-              : ""
-          }
-        `;
+        
+        // Create cells safely using textContent
+        const trainIdCell = document.createElement("td");
+        trainIdCell.textContent = train.trainId;
+        row.appendChild(trainIdCell);
+        
+        const fromCell = document.createElement("td");
+        fromCell.textContent = train.from;
+        row.appendChild(fromCell);
+        
+        const toCell = document.createElement("td");
+        toCell.textContent = train.to;
+        row.appendChild(toCell);
+        
+        const departureCell = document.createElement("td");
+        departureCell.textContent = train.departureTime;
+        row.appendChild(departureCell);
+        
+        const arrivalCell = document.createElement("td");
+        arrivalCell.textContent = train.arrivalTime;
+        row.appendChild(arrivalCell);
+        
+        const daysCell = document.createElement("td");
+        daysCell.textContent = train.daysOfOperation;
+        row.appendChild(daysCell);
+        
+        if (showBook) {
+          const bookCell = document.createElement("td");
+          const bookBtn = document.createElement("button");
+          bookBtn.className = "bookBtn";
+          bookBtn.textContent = "Book";
+          bookBtn.onclick = function() {
+            bookTrain(train.trainId, train.from, train.to, train.departureTime, train.arrivalTime, train.daysOfOperation, dateInput.value);
+          };
+          bookCell.appendChild(bookBtn);
+          row.appendChild(bookCell);
+        }
+        
         tbody.appendChild(row);
       });
 

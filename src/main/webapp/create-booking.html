@@ -154,14 +154,34 @@ button:hover {
         ? selectedDate
         : new Date().toISOString().split("T")[0];
 
-      trainDetails.innerHTML = `
-        <div><strong>Train ID:</strong> ${trainId}</div>
-        <div><strong>Route:</strong> ${from} → ${to}</div>
-        <div><strong>Departure:</strong> ${departureTime || 'N/A'}</div>
-        <div><strong>Arrival:</strong> ${arrivalTime || 'N/A'}</div>
-        <div><strong>Days:</strong> ${daysOfOperation || 'N/A'}</div>
-        <div></div>
-      `;
+      // Safely create train details without XSS vulnerability
+      trainDetails.innerHTML = '';
+      const trainIdDiv = document.createElement('div');
+      trainIdDiv.innerHTML = '<strong>Train ID:</strong> ';
+      trainIdDiv.appendChild(document.createTextNode(trainId));
+      
+      const routeDiv = document.createElement('div');
+      routeDiv.innerHTML = '<strong>Route:</strong> ';
+      routeDiv.appendChild(document.createTextNode(`${from} → ${to}`));
+      
+      const departureDiv = document.createElement('div');
+      departureDiv.innerHTML = '<strong>Departure:</strong> ';
+      departureDiv.appendChild(document.createTextNode(departureTime || 'N/A'));
+      
+      const arrivalDiv = document.createElement('div');
+      arrivalDiv.innerHTML = '<strong>Arrival:</strong> ';
+      arrivalDiv.appendChild(document.createTextNode(arrivalTime || 'N/A'));
+      
+      const daysDiv = document.createElement('div');
+      daysDiv.innerHTML = '<strong>Days:</strong> ';
+      daysDiv.appendChild(document.createTextNode(daysOfOperation || 'N/A'));
+      
+      trainDetails.appendChild(trainIdDiv);
+      trainDetails.appendChild(routeDiv);
+      trainDetails.appendChild(departureDiv);
+      trainDetails.appendChild(arrivalDiv);
+      trainDetails.appendChild(daysDiv);
+      trainDetails.appendChild(document.createElement('div'));
       trainInfo.style.display = "block";
     } else if (trainId) {
       // Case 2: Fallback — fetch full train data from backend
@@ -174,14 +194,34 @@ button:hover {
             toInput.value = match.to;
             dateInput.value = selectedDate || new Date().toISOString().split("T")[0];
 
-            trainDetails.innerHTML = `
-              <div><strong>Train ID:</strong> ${match.trainId}</div>
-              <div><strong>Route:</strong> ${match.from} → ${match.to}</div>
-              <div><strong>Departure:</strong> ${match.departureTime || 'N/A'}</div>
-              <div><strong>Arrival:</strong> ${match.arrivalTime || 'N/A'}</div>
-              <div><strong>Days:</strong> ${match.daysOfOperation || 'N/A'}</div>
-              <div></div>
-            `;
+            // Safely create train details without XSS vulnerability
+            trainDetails.innerHTML = '';
+            const trainIdDiv = document.createElement('div');
+            trainIdDiv.innerHTML = '<strong>Train ID:</strong> ';
+            trainIdDiv.appendChild(document.createTextNode(match.trainId));
+            
+            const routeDiv = document.createElement('div');
+            routeDiv.innerHTML = '<strong>Route:</strong> ';
+            routeDiv.appendChild(document.createTextNode(`${match.from} → ${match.to}`));
+            
+            const departureDiv = document.createElement('div');
+            departureDiv.innerHTML = '<strong>Departure:</strong> ';
+            departureDiv.appendChild(document.createTextNode(match.departureTime || 'N/A'));
+            
+            const arrivalDiv = document.createElement('div');
+            arrivalDiv.innerHTML = '<strong>Arrival:</strong> ';
+            arrivalDiv.appendChild(document.createTextNode(match.arrivalTime || 'N/A'));
+            
+            const daysDiv = document.createElement('div');
+            daysDiv.innerHTML = '<strong>Days:</strong> ';
+            daysDiv.appendChild(document.createTextNode(match.daysOfOperation || 'N/A'));
+            
+            trainDetails.appendChild(trainIdDiv);
+            trainDetails.appendChild(routeDiv);
+            trainDetails.appendChild(departureDiv);
+            trainDetails.appendChild(arrivalDiv);
+            trainDetails.appendChild(daysDiv);
+            trainDetails.appendChild(document.createElement('div'));
             trainInfo.style.display = "block";
           } else {
             alert("Train not found.");
@@ -252,25 +292,42 @@ button:hover {
           confirmation.style.display = "block";
           confirmation.style.backgroundColor = "#d4edda";
           confirmation.style.color = "#155724";
-          confirmation.innerHTML = `
-            <strong>Booking Successful!</strong><br>
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px;">
-              <div>
-                Your booking ID is: <strong>${data.bookingId}</strong>
-              </div>
-              <button id="manageBtn" type="button" style="
-                padding: 8px 16px;
-                font-size: 14px;
-                background-color: #007bff;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-              ">Manage</button>
-            </div>
-            Name: ${data.name}<br>
-            From: ${data.from} → ${data.to} on ${data.travelDate}
-          `;
+          // Safely create booking confirmation without XSS vulnerability
+          confirmation.innerHTML = '';
+          
+          const successTitle = document.createElement('strong');
+          successTitle.textContent = 'Booking Successful!';
+          confirmation.appendChild(successTitle);
+          confirmation.appendChild(document.createElement('br'));
+          
+          const flexDiv = document.createElement('div');
+          flexDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-top: 10px;';
+          
+          const bookingIdDiv = document.createElement('div');
+          bookingIdDiv.innerHTML = 'Your booking ID is: ';
+          const bookingIdStrong = document.createElement('strong');
+          bookingIdStrong.textContent = data.bookingId;
+          bookingIdDiv.appendChild(bookingIdStrong);
+          
+          const manageBtn = document.createElement('button');
+          manageBtn.id = 'manageBtn';
+          manageBtn.type = 'button';
+          manageBtn.style.cssText = 'padding: 8px 16px; font-size: 14px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;';
+          manageBtn.textContent = 'Manage';
+          
+          flexDiv.appendChild(bookingIdDiv);
+          flexDiv.appendChild(manageBtn);
+          confirmation.appendChild(flexDiv);
+          
+          const nameDiv = document.createElement('div');
+          nameDiv.innerHTML = 'Name: ';
+          nameDiv.appendChild(document.createTextNode(data.name));
+          confirmation.appendChild(nameDiv);
+          
+          const routeDiv = document.createElement('div');
+          routeDiv.innerHTML = 'From: ';
+          routeDiv.appendChild(document.createTextNode(`${data.from} → ${data.to} on ${data.travelDate}`));
+          confirmation.appendChild(routeDiv);
           document.getElementById("bookingForm").reset();
           confirmation.scrollIntoView({ behavior: 'smooth' });
 
@@ -285,10 +342,17 @@ button:hover {
           confirmation.style.display = "block";
           confirmation.style.backgroundColor = "#f8d7da";
           confirmation.style.color = "#721c24";
-          confirmation.innerHTML = `
-            <strong>Booking Failed!</strong><br>
-            ${error.message.replace(/\n/g, "<br>")}
-          `;
+          // Safely create error message without XSS vulnerability
+          confirmation.innerHTML = '';
+          
+          const errorTitle = document.createElement('strong');
+          errorTitle.textContent = 'Booking Failed!';
+          confirmation.appendChild(errorTitle);
+          confirmation.appendChild(document.createElement('br'));
+          
+          const errorMessage = document.createElement('div');
+          errorMessage.textContent = error.message;
+          confirmation.appendChild(errorMessage);
           console.error("Booking error:", error);
           confirmation.scrollIntoView({ behavior: 'smooth' });
         });

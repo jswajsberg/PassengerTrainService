@@ -87,7 +87,7 @@ public class BookingResource {
     @GET
     @Path("/all")
     public Response getAllBookings() {
-        Collection<Booking> all = BookingService.getAllBookings();
+        Collection<Booking> all = service.getAllBookings();
         return Response.ok(all).build();
     }
 
