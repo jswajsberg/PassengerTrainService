@@ -39,16 +39,17 @@ src/
 
 > Note: Structure may vary slightly depending on project layout and Maven packaging.
 
-## 🚂 Sample API Endpoints
+## 🚂 API Endpoints
 
-| Endpoint              | Method | Description                    | Response Format |
-|-----------------------|--------|--------------------------------|-----------------|
-| `/trains`             | GET    | List all available trains      | JSON            |
-| `/trains/{id}`        | GET    | Get a train by ID              | JSON            |
-| `/bookings/html/{id}` | GET    | Display booking in HTML format | HTML            |
-| `/forms/booking`      | GET    | Display train booking form     | HTML            |
-| `/forms/search`       | GET    | Display train search form      | HTML            |
-| `/forms/cancel`       | GET    | Display booking cancellation   | HTML            |
+| Endpoint              | Method | Description                               | Response Type |
+|-----------------------|--------|-------------------------------------------|---------------|
+| `/bookings`           | POST   | Create a new booking                      | JSON          |
+| `/bookings/{id}`      | GET    | Retrieve a booking by ID                  | JSON          |
+| `/bookings/html/{id}` | GET    | Retrieve a booking as an HTML page        | HTML          |
+| `/bookings/all`       | GET    | Retrieve all bookings                     | JSON          |
+| `/trains`             | GET    | List all available trains                 | JSON          |
+| `/trains/search`      | GET    | Search trains by `from`, `to`, and `date` | JSON          |
+| `/bookings/{id}`      | DELETE | Cancel a booking by ID                    | Plain Text    |
 
 ## 🧪 How to Test
 
