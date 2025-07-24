@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Manage Booking</title>
+<style>
+body {
+	font-family: sans-serif;
+	max-width: 650px;
+	margin: auto;
+	padding: 20px;
+}
+
+h1 {
+	text-align: center;
+}
+
+form {
+	background: #f0f0f0;
+	padding: 12px;
+	border-radius: 6px;
+	margin-bottom: 20px;
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 10px;
+	justify-content: flex-start;
+}
+
+label {
+	margin-right: 6px;
+	font-size: 14px;
+	min-width: 80px;
+}
+
+input[type="text"] {
+	padding: 6px 8px;
+	font-size: 14px;
+	width: 350px; /* wider for UUID */
+}
+
+button {
+	padding: 6px 16px;
+	font-size: 14px;
+	font-weight: bold;
+	border-radius: 4px;
+	border: none;
+	background-color: #007bff;
+	color: white;
+	cursor: pointer;
+	transition: background-color 0.3s ease;
+}
+
+button:hover {
+	background-color: #0056b3;
+}
+
+/* Inline message styling */
+#message {
+	font-weight: bold;
+	margin-top: 10px;
+}
+
+/* Booking details table */
+table {
+	width: 100%;
+	border-collapse: collapse;
+	margin-top: 20px;
+}
+
+th, td {
+	border: 1px solid #ccc;
+	padding: 8px;
+	font-size: 14px;
+	text-align: left;
+}
+
+.hidden {
+	display: none;
+}
+</style>
+</head>
+<body>
+	<h1>Manage Booking</h1>
+
+	<!-- Booking search form -->
+	<form id="manageBookingForm" novalidate>
+		<label for="bookingId">Booking ID:</label> <input type="text"
+			id="bookingId" name="bookingId" placeholder="Enter Booking ID"
+			required />
+		<button type="submit">Find Booking</button>
+	</form>
+
+	<!-- Area to display messages like errors or success -->
+	<div id="message"></div>
+
+	<!-- Booking details section, hidden until a booking is found -->
+	<div id="bookingDetails" class="hidden">
+		<h2>Booking Details</h2>
+		<table>
+			<tbody>
+				<tr>
+					<th>Booking ID</th>
+					<td id="detailBookingId"></td>
+				</tr>
+				<tr>
+					<th>Name</th>
+					<td id="detailName"></td>
+				</tr>
+				<tr>
+					<th>Email</th>
+					<td id="detailEmail"></td>
+				</tr>
+				<tr>
+					<th>From</th>
+					<td id="detailFrom"></td>
+				</tr>
+				<tr>
+					<th>To</th>
+					<td id="detailTo"></td>
+				</tr>
+				<tr>
+					<th>Travel Date</th>
+					<td id="detailDate"></td>
+				</tr>
+			</tbody>
+		</table>
+
+		<!-- Button to cancel the displayed booking -->
+		<button id="cancelBookingBtn"
+			style="margin-top: 15px; background-color: #dc3545;">Cancel
+			Booking</button>
+	</div>
+
+	<button onclick="window.location.href='index.html'"
+		style="margin-top: 15px; padding: 8px 16px; font-size: 14px; border: none; border-radius: 4px; background: #007bff; color: #fff; cursor: pointer; transition: background-color 0.3s ease;">
+		← Return</button>
+
+
+	<script>
+  // DOM elements for interaction and display
+  const form = document.getElementById("manageBookingForm");
+  const messageDiv = document.getElementById("message");
+  const bookingDetailsDiv = document.getElementById("bookingDetails");
+  const detailBookingId = document.getElementById("detailBookingId");
+  const detailName = document.getElementById("detailName");
+  const detailEmail = document.getElementById("detailEmail");
+  const detailFrom = document.getElementById("detailFrom");
+  const detailTo = document.getElementById("detailTo");
+  const detailDate = document.getElementById("detailDate");
+  const cancelBtn = document.getElementById("cancelBookingBtn");
+
+  let currentBookingId = null; // Tracks currently displayed booking
+
+  /**
+   * Clears the booking details display and resets currentBookingId.
+   */
+  function clearDetails() {
+    bookingDetailsDiv.classList.add("hidden");
+    detailBookingId.textContent = "";
+    detailName.textContent = "";
+    detailEmail.textContent = "";
+    detailFrom.textContent = "";
+    detailTo.textContent = "";
+    detailDate.textContent = "";
+    currentBookingId = null;
+  }
+
+  /**
+   * Populates the booking details table with data from the booking object.
+   * Shows the details section and updates currentBookingId.
+   * @param {Object} booking - Booking data object
+   */
+  function displayBooking(booking) {
+    detailBookingId.textContent = booking.bookingId;
+    detailName.textContent = booking.name;
+    detailEmail.textContent = booking.email;
+    detailFrom.textContent = booking.from;
+    detailTo.textContent = booking.to;
+    detailDate.textContent = booking.travelDate;
+    bookingDetailsDiv.classList.remove("hidden");
+    currentBookingId = booking.bookingId;
+  }
+
+  /**
+   * Displays a message on the page with optional color styling.
+   * @param {string} msg - The message to show
+   * @param {string} [color='black'] - Text color for the message
+   */
+  function showMessage(msg, color = "black") {
+    messageDiv.textContent = msg;
+    messageDiv.style.color = color;
+  }
+
+  // Form submission handler: fetch booking by ID and display details or error
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    clearDetails();
+    showMessage("");
+
+    const bookingId = form.bookingId.value.trim();
+    if (!bookingId) {
+      showMessage("Please enter a booking ID.", "red");
+      return;
+    }
+
+    fetch(`http://localhost:8080/PassengerTrainService/api/bookings/${bookingId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Booking not found");
+        return res.json();
+      })
+      .then((booking) => {
+        displayBooking(booking);
+        showMessage("Booking found.", "green");
+      })
+      .catch((err) => {
+        showMessage(err.message, "red");
+      });
+  });
+
+  // Cancel booking button handler: send DELETE request, then clear details if successful
+  cancelBtn.addEventListener("click", () => {
+    if (!currentBookingId) {
+      showMessage("No booking selected to cancel", "red");
+      return;
+    }
+
+    showMessage(""); // Clear previous messages
+
+    fetch(`http://localhost:8080/PassengerTrainService/api/bookings/${currentBookingId}`, {
+      method: "DELETE",
+    })
+    .then((res) => {
+      if (!res.ok) throw new Error("Failed to cancel booking");
+      return res.text();
+    })
+    .then((msg) => {
+      showMessage(msg, "green");
+      clearDetails(); // Clear only after successful cancellation
+    })
+    .catch((err) => {
+      showMessage(err.message, "red");
+    });
+  });
+
+  // Parse URL query parameters to get bookingId
+  const params = new URLSearchParams(window.location.search);
+  const urlBookingId = params.get('bookingId');
+  if (urlBookingId) {
+    // Put the bookingId into the input field
+    form.bookingId.value = urlBookingId;
+
+    // Automatically submit the form to fetch booking details
+    form.dispatchEvent(new Event('submit'));
+  }
+
+</script>
+</body>
+</html>
